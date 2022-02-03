@@ -1,0 +1,30 @@
+.TH YED-VIM 7 "YED Plugin Manuals" "" "YED Plugin Manuals"
+.SH NAME
+vim \- A modal editor experience that tries to mimic vim.
+.SH CONFIGURATION
+None
+.SH COMMANDS
+.SS vim-bind <mode> <keys> <command>
+Bind <keys> to <command> when in <mode>.
+.SS vim-unbind <mode> <keys>
+Unbind <keys> in <mode>.
+.SS vim-exit-insert
+Leave insert mode and return to normal mode.
+.SS w
+.SS W
+Alias for write-buffer.
+.SS q
+.SS Q
+If you're in the only frame, quit.
+Otherwise, close the frame.
+.SS wq
+.SS Wq
+write-buffer, then do q from above.
+.SH BUFFERS
+None
+.SH NOTES
+None
+.SH VERSION
+0.0.1
+.SH KEYWORDS
+key, bind, binding, edit, mode, modal, vim, vi, emacs
