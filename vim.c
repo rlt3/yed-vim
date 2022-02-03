@@ -2,11 +2,19 @@
 
 /*
  * TODO:
+ *
+ * keys:
  * - x, delete single character without entering insert
- * - O, o; create a new line above or below, go to its beginning, enter insert mode
  * - V, v; visual block and visual select modes
  * - %, travel on parens or brackets
  * - I; insert at beginning of line
+ *
+ * commands:
+ * - :vsp, sp; open frames vertically or horizontally
+ * - :e <path>; open file in current frame
+ *
+ * tasks:
+ * - o,O; when leaving insert mode and undoing, should take you to the location of the 'o' or 'O' command
  *
  * BUGS?
  * - :w to save when opening file ~/yed-vim/vim.c causes internal failure
@@ -144,7 +152,7 @@ int yed_plugin_boot(yed_plugin *self) {
     vim_change_mode(MODE_NORMAL, 0, 0);
     yed_set_var("vim-mode", mode_strs[mode]);
 
-    /* for compatibility with ctrl + e, ctrl + y, scroll frame with no buffer */
+    /* for compatibility with ctrl + e, ctrl + y, scroll frame with no offset */
     yed_set_var("default-scroll-offset", "0");
 
     return 0;
@@ -709,6 +717,19 @@ out:
     return 1;
 }
 
+void vim_insert_line(int direction) {
+    yed_frame *f;
+    int        row;
+
+    if (!ys->active_frame || !ys->active_frame->buffer)
+        return;
+
+    f = ys->active_frame;
+    row = (direction < 0) ? f->cursor_line : f->cursor_line + 1;
+    yed_buff_insert_line(f->buffer, row);
+    yed_set_cursor_within_frame(f, row, 0);
+}
+
 void vim_normal(int key, char *key_str) {
     if (vim_nav_common(key, key_str)) {
         return;
@@ -759,11 +780,15 @@ void vim_normal(int key, char *key_str) {
             break;
 
         case 'O':
-            //goto enter_insert;
+            YEXE("select-off");
+            vim_insert_line(-1);
+            goto enter_insert;
             break;
 
         case 'o':
-            //goto enter_insert;
+            YEXE("select-off");
+            vim_insert_line(1);
+            goto enter_insert;
             break;
 
         case 'a':
