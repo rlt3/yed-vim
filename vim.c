@@ -6,8 +6,6 @@
  * - O, o; create a new line above or below, go to its beginning, enter insert mode
  * - V, v; visual block and visual select modes
  * - %, travel on parens or brackets
- * - $, ^; travel to end or beginning of line
- * - ctrl + E, ctrl + Y; scroll buffer down or up
  * - I; insert at beginning of line
  */
 
@@ -140,6 +138,9 @@ int yed_plugin_boot(yed_plugin *self) {
 
     vim_change_mode(MODE_NORMAL, 0, 0);
     yed_set_var("vim-mode", mode_strs[mode]);
+
+    /* for compatibility with ctrl + e, ctrl + y, scroll frame with no buffer */
+    yed_set_var("default-scroll-offset", "0");
 
     return 0;
 }
@@ -674,12 +675,7 @@ int vim_nav_common(int key, char *key_str) {
             YEXE("cursor-next-word-end");
             break;
 
-        case 'O':
-            break;
-
-        case 'o':
-            break;
-
+        case '^':
         case '0':
         case HOME_KEY:
             YEXE("cursor-line-begin");
@@ -752,6 +748,14 @@ void vim_normal(int key, char *key_str) {
     }
 
     switch (key) {
+        case CTRL_E:
+            YEXE("frame-scroll", "1");
+            break;
+
+        case CTRL_Y:
+            YEXE("frame-scroll", "-1");
+            break;
+
         case 'd':
             YEXE("select-off");
             vim_start_repeat(key);
@@ -785,6 +789,14 @@ void vim_normal(int key, char *key_str) {
         case 'p':
             vim_start_repeat(key);
             YEXE("paste-yank-buffer");
+            break;
+
+        case 'O':
+            //goto enter_insert;
+            break;
+
+        case 'o':
+            //goto enter_insert;
             break;
 
         case 'a':
