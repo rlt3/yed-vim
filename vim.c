@@ -7,6 +7,9 @@
  * - V, v; visual block and visual select modes
  * - %, travel on parens or brackets
  * - I; insert at beginning of line
+ *
+ * BUGS?
+ * - :w to save when opening file ~/yed-vim/vim.c causes internal failure
  */
 
 /* COMMANDS */
@@ -109,12 +112,14 @@ int yed_plugin_boot(yed_plugin *self) {
     yed_plugin_set_command(Self, "vim-bind",        vim_bind);
     yed_plugin_set_command(Self, "vim-unbind",      vim_unbind);
     yed_plugin_set_command(Self, "vim-exit-insert", vim_exit_insert);
-    yed_plugin_set_command(Self, "w",                  vim_write);
-    yed_plugin_set_command(Self, "W",                  vim_write);
-    yed_plugin_set_command(Self, "q",                  vim_quit);
-    yed_plugin_set_command(Self, "Q",                  vim_quit);
-    yed_plugin_set_command(Self, "wq",                 vim_write_quit);
-    yed_plugin_set_command(Self, "Wq",                 vim_write_quit);
+    yed_plugin_set_command(Self, "w",               vim_write);
+    yed_plugin_set_command(Self, "W",               vim_write);
+    yed_plugin_set_command(Self, "q",               vim_quit);
+    yed_plugin_set_command(Self, "Q",               vim_quit);
+    yed_plugin_set_command(Self, "wq",              vim_write_quit);
+    yed_plugin_set_command(Self, "Wq",              vim_write_quit);
+    yed_plugin_set_command(Self, "x",               vim_write_quit);
+    yed_plugin_set_command(Self, "X",               vim_write_quit);
 
     yed_plugin_set_completion(Self, "vim-mode", vim_mode_completion);
     yed_plugin_set_completion(Self, "vim-bind-compl-arg-0", vim_mode_completion);
@@ -771,6 +776,12 @@ void vim_normal(int key, char *key_str) {
             YEXE("select-off");
             vim_start_repeat(key);
             YEXE("cursor-line-end");
+            goto enter_insert;
+
+        case 'I':
+            YEXE("select-off");
+            vim_start_repeat(key);
+            YEXE("cursor-line-begin");
             goto enter_insert;
 
         case 'i':
