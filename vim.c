@@ -505,44 +505,6 @@ static void vim_start_repeat(int key) {
     array_push(repeat_keys, key);
 }
 
-static void vim_cursor_end_of_word() {
-    yed_frame *f;
-    yed_line  *line;
-    int        col;
-    int        row;
-    yed_glyph *g;
-    int        skip_first;
-
-    //if (!ys->active_frame || !ys->active_frame->buffer) return;
-    //f = ys->active_frame;
-    //line = yed_buff_get_line(f->buffer, f->cursor_line);
-
-    //if (yed_line_last_glyph(line) == yed_line_col_to_glyph(line, f->cursor_col)) {
-    //}
-
-
-    YEXE("cursor-next-word");
-
-    if (!ys->active_frame || !ys->active_frame->buffer) return;
-    f = ys->active_frame;
-
-    if (row > f->cursor_line) {
-    }
-
-    row = f->cursor_line;
-    col = f->cursor_col;
-    line = yed_buff_get_line(f->buffer, row);
-
-    while (col >= 0) {
-        g = yed_line_col_to_glyph(line, col);
-        if (!isspace(g->c))
-            break;
-        col -= yed_get_glyph_width(*g);
-    }
-
-    yed_set_cursor_within_frame(f, f->cursor_line, col);
-}
-
 void vim_exit_insert(int n_args, char **args) {
     vim_push_repeat_key(CTRL_C);
     vim_change_mode(MODE_NORMAL, 0, 0);
