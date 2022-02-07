@@ -4,7 +4,6 @@
  * TODO:
  *
  * keys:
- * - x, delete single character without entering insert
  * - V, v; visual block and visual select modes
  * - %, travel on parens or brackets
  * - I; insert at beginning of line
@@ -736,6 +735,17 @@ void vim_insert_line(int direction) {
     yed_set_cursor_within_frame(f, row, 0);
 }
 
+void vim_delete_char_under_cursor() {
+    yed_frame *f;
+    yed_line  *line;
+    if (!ys->active_frame || !ys->active_frame->buffer)
+        return;
+    f = ys->active_frame;
+    line = yed_buff_get_line(f->buffer, f->cursor_line);
+    if (line->visual_width > 0)
+        yed_delete_from_line(f->buffer, f->cursor_line, f->cursor_col);
+}
+
 void vim_normal(int key, char *key_str) {
     if (vim_nav_common(key, key_str)) {
         return;
@@ -834,6 +844,10 @@ enter_insert:
 
         case CTRL_R:
             YEXE("redo");
+            break;
+
+        case 'x':
+            vim_delete_char_under_cursor();
             break;
 
         case '.':
