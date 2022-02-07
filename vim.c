@@ -10,8 +10,10 @@
  * - I; insert at beginning of line
  *
  * commands:
- * - :vsp, sp; open frames vertically or horizontally
+ * - :vsp, sp; have frames open on the left and top first
  * - :e <path>; open file in current frame
+ * - :x; should save only if changes were made
+ * - !; for forcing commands, force write, force read, etc.
  *
  * tasks:
  * - o,O; when leaving insert mode and undoing, should take you to the location of the 'o' or 'O' command
@@ -28,6 +30,8 @@ void vim_exit_insert(int n_args, char **args);
 void vim_write(int n_args, char **args);
 void vim_quit(int n_args, char **args);
 void vim_write_quit(int n_args, char **args);
+void vim_vsp(int n_args, char **args);
+void vim_sp(int n_args, char **args);
 /* END COMMANDS */
 
 typedef enum Mode {
@@ -128,6 +132,8 @@ int yed_plugin_boot(yed_plugin *self) {
     yed_plugin_set_command(Self, "Wq",              vim_write_quit);
     yed_plugin_set_command(Self, "x",               vim_write_quit);
     yed_plugin_set_command(Self, "X",               vim_write_quit);
+    yed_plugin_set_command(Self, "vsp",             vim_vsp);
+    yed_plugin_set_command(Self, "sp",              vim_sp);
 
     yed_plugin_set_completion(Self, "vim-mode", vim_mode_completion);
     yed_plugin_set_completion(Self, "vim-bind-compl-arg-0", vim_mode_completion);
@@ -988,6 +994,24 @@ void vim_quit(int n_args, char **args) {
 void vim_write_quit(int n_args, char **args) {
     YEXE("w");
     YEXE("q");
+}
+
+void vim_vsp(int n_args, char **args) {
+    if (n_args == 0) {
+        yed_cerr("Expected file path, but got nothing");
+        return;
+    }
+    YEXE("frame-vsplit");
+    YEXE("buffer", args[0]);
+}
+
+void vim_sp(int n_args, char **args) {
+    if (n_args == 0) {
+        yed_cerr("Expected file path, but got nothing");
+        return;
+    }
+    YEXE("frame-hsplit");
+    YEXE("buffer", args[0]);
 }
 
 void enter_insert(void) {
