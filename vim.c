@@ -7,6 +7,10 @@
  * - V, v; visual block and visual select modes
  * - %, travel on parens or brackets
  * - I; insert at beginning of line
+ * - CTRL_W + movement key to move between open frames
+ * - r, R; replace current char with given char, or enter replace mode
+ * - C; should clear any characters after cursor and enter insert mode
+ * - cw; delete next word and enter insert mode
  *
  * commands:
  * - :vsp, sp; have frames open on the left and top first
@@ -16,6 +20,7 @@
  *
  * tasks:
  * - o,O; when leaving insert mode and undoing, should take you to the location of the 'o' or 'O' command
+ * - going to new line should take you to the correct space width
  *
  * BUGS?
  * - :w to save when opening file ~/yed-vim/vim.c causes internal failure
@@ -159,6 +164,9 @@ int yed_plugin_boot(yed_plugin *self) {
 
     /* for compatibility with ctrl + e, ctrl + y, scroll frame with no offset */
     yed_set_var("default-scroll-offset", "0");
+
+    YEXE("vim-bind", "normal", "ctrl-w j", "frame-next");
+    YEXE("vim-bind", "normal", "ctrl-w k", "frame-prev");
 
     return 0;
 }
@@ -630,6 +638,18 @@ int vim_nav_common(int key, char *key_str) {
             YEXE("cursor-up");
             break;
 
+        case CTRL_H:
+            break;
+
+        case CTRL_J:
+            break;
+
+        case CTRL_K:
+            break;
+
+        case CTRL_L:
+            break;
+
         case 'l':
         case ARROW_RIGHT:
             YEXE("cursor-right");
@@ -758,6 +778,10 @@ void vim_normal(int key, char *key_str) {
 
         case CTRL_Y:
             YEXE("frame-scroll", "-1");
+            break;
+
+        case '*':
+            YEXE("find-in-buffer", yed_word_under_cursor());
             break;
 
         case 'd':
